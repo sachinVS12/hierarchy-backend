@@ -1,30 +1,57 @@
-const addTagnamesToTheManager = async (req, res, next) => {
-  const { id } = req.params;
-  const { topics } = req.body;
+class ResponseHandler {
+  static success(res, data = null, message = "Success", statusCode = 200) {
+    const response = {
+      success: true,
+      status: "success",
+      message,
+      data,
+    };
 
-  if (!Array.isArray(topics) || topics.length === 0) {
-    return res.status(400).json({ error: "Topics must be a non-empty array." });
+    return res.status(statusCode).json(response);
   }
 
-  try {
-    const updatedEmployee = await Manager.findByIdAndUpdate(
-      id,
-      { $addToSet: { topics: { $each: topics } } },
-      { new: true },
-    );
+  static paginated(
+    res,
+    data,
+    pagination,
+    message = "Success",
+    statusCode = 200,
+  ) {
+    const response = {
+      success: true,
+      status: "success",
+      message,
+      data,
+      pagination,
+    };
 
-    if (!updatedEmployee) {
-      return res.status(404).json({ error: "Manager not found." });
-    }
-
-    return res.status(200).json({
-      message: "Topics updated successfully.",
-      Manager: updatedEmployee,
-    });
-  } catch (error) {
-    console.error("Error updating topics:", error);
-    return res
-      .status(500)
-      .json({ error: "An error occurred while updating topics." });
+    return res.status(statusCode).json(response);
   }
-};
+
+  static created(res, data = null, message = "Resource created successfully") {
+    return this.success(res, data, message, 201);
+  }
+
+  static noContent(res, message = "Resource deleted successfully") {
+    return this.success(res, null, message, 204);
+  }
+
+  static error(
+    res,
+    message = "Internal server error",
+    statusCode = 500,
+    details = null,
+  ) {
+    const response = {
+      success: false,
+      status: "error",
+      message,
+    };
+
+    if (details) response.details = details;
+
+    return res.status(statusCode).json(response);
+  }
+}
+
+module.exports = ResponseHandler;
