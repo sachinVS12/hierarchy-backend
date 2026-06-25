@@ -52,10 +52,11 @@ const rolesData = {
 
 roleSchema.statics.seedRoles = async function () {
   for (const [roleName, roleData] of Object.entries(rolesData)) {
+    // Fix: Use returnDocument: 'after' instead of new: true
     await this.findOneAndUpdate(
       { name: roleName },
       { name: roleName, ...roleData },
-      { upsert: true, new: true },
+      { upsert: true, returnDocument: "after" }, // Changed from 'new: true' to 'returnDocument: "after"'
     );
   }
   console.log("Roles seeded successfully");
