@@ -27,33 +27,41 @@ const seedDatabase = async () => {
     // Seed roles
     await Role.seedRoles();
 
-    // Create a temporary company first
-    const company = await Company.create({
-      name: "TechCorp",
-      description: "Leading technology company",
-      status: true,
-      createdBy: null, // Will be updated
-    });
+    console.log("Roles seeded successfully");
 
-    // Create SUPER_ADMIN user
+    // Create SUPER_ADMIN user first (with a placeholder companyId)
     const hashedPassword = await bcrypt.hash("Admin@123", config.bcryptRounds);
+
+    // Create a temporary ObjectId for the company placeholder
+    const tempCompanyId = new mongoose.Types.ObjectId();
+    const tempManagerId = new mongoose.Types.ObjectId();
 
     const superAdminUser = await User.create({
       name: "Super Admin",
       email: "superadmin@example.com",
       password: hashedPassword,
       role: "SUPER_ADMIN",
-      companyId: company._id,
+      companyId: tempCompanyId, // Temporary, will be updated
       managerId: null,
-      createdBy: null,
-    });
-
-    // Update company with createdBy
-    await Company.findByIdAndUpdate(company._id, {
-      createdBy: superAdminUser._id,
+      createdBy: null, // Super admin created by system
     });
 
     console.log("Super Admin created");
+
+    // Now create the company with the super admin as createdBy
+    const company = await Company.create({
+      name: "TechCorp",
+      description: "Leading technology company",
+      status: true,
+      createdBy: superAdminUser._id,
+    });
+
+    console.log("Company created");
+
+    // Update SUPER_ADMIN with the actual company ID
+    await User.findByIdAndUpdate(superAdminUser._id, {
+      companyId: company._id,
+    });
 
     // Create a manager
     const managerPassword = await bcrypt.hash(
@@ -69,6 +77,8 @@ const seedDatabase = async () => {
       createdBy: superAdminUser._id,
     });
 
+    console.log("Manager created");
+
     // Create a user
     const userPassword = await bcrypt.hash("User@123", config.bcryptRounds);
     const user = await User.create({
@@ -81,7 +91,7 @@ const seedDatabase = async () => {
       createdBy: superAdminUser._id,
     });
 
-    console.log("Manager and User created");
+    console.log("User created");
 
     // Create a tag
     const tag = await Tag.create({
@@ -113,6 +123,7 @@ const seedDatabase = async () => {
     console.log("=====================================");
 
     await mongoose.disconnect();
+    console.log("Database disconnected");
     process.exit(0);
   } catch (error) {
     console.error("Seeding error:", error);
