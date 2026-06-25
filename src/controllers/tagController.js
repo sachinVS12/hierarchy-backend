@@ -1,5 +1,6 @@
 const tagService = require("../services/tagService");
 const ResponseHandler = require("../utils/responseHandler");
+const AppError = require("../utils/appError");
 const validate = require("../middleware/validationMiddleware");
 const {
   createTagValidation,
@@ -39,11 +40,13 @@ class TagController {
         sort: { [sortBy]: sortOrder === "desc" ? -1 : 1 },
       };
 
-      const result = await tagService.getAllTags(
-        req.user,
-        { search, companyId, managerId, userId, tagPath },
-        options,
-      );
+      const filters = { search };
+      if (companyId) filters.companyId = companyId;
+      if (managerId) filters.managerId = managerId;
+      if (userId) filters.userId = userId;
+      if (tagPath) filters.tagPath = tagPath;
+
+      const result = await tagService.getAllTags(req.user, filters, options);
       ResponseHandler.paginated(
         res,
         result.data,
@@ -59,9 +62,9 @@ class TagController {
     validate(tagIdValidation),
     async (req, res, next) => {
       try {
-        // Implement get tag by id with permissions
-        const tags = await tagService.getAllTags(req.user, {}, {});
-        const tag = tags.data.find((t) => t._id.toString() === req.params.id);
+        // Get all tags with filters and find the specific one
+        const result = await tagService.getAllTags(req.user, {}, {});
+        const tag = result.data.find((t) => t._id.toString() === req.params.id);
 
         if (!tag) {
           return next(new AppError("Tag not found", 404));
