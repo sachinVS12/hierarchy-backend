@@ -1,5 +1,6 @@
 const userService = require("../services/userService");
 const ResponseHandler = require("../utils/responseHandler");
+const AppError = require("../utils/appError");
 const validate = require("../middleware/validationMiddleware");
 const {
   createUserValidation,
@@ -37,11 +38,11 @@ class UserController {
         sort: { [sortBy]: sortOrder === "desc" ? -1 : 1 },
       };
 
-      const result = await userService.getAllUsers(
-        req.user,
-        { search, companyId, managerId },
-        options,
-      );
+      const filters = { search };
+      if (companyId) filters.companyId = companyId;
+      if (managerId) filters.managerId = managerId;
+
+      const result = await userService.getAllUsers(req.user, filters, options);
       ResponseHandler.paginated(
         res,
         result.data,
