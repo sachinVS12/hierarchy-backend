@@ -13,8 +13,9 @@ class Database {
 
     try {
       const conn = await mongoose.connect(process.env.MONGODB_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
+        // Remove these options as they are no longer supported in Mongoose 8+
+        // useNewUrlParser: true,
+        // useUnifiedTopology: true,
         serverSelectionTimeoutMS: 5000,
         socketTimeoutMS: 45000,
       });
