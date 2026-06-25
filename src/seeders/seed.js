@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
 const config = require("../config/env");
 const Company = require("../models/Company");
 const Manager = require("../models/Manager");
@@ -26,12 +25,9 @@ const seedDatabase = async () => {
 
     // Seed roles
     await Role.seedRoles();
-
     console.log("Roles seeded successfully");
 
-    // Create SUPER_ADMIN user (system user)
-    const hashedPassword = await bcrypt.hash("Admin@123", config.bcryptRounds);
-
+    // Create SUPER_ADMIN user (system user) - Let the model hash the password
     // Create a placeholder company ID for super admin
     const tempCompanyId = new mongoose.Types.ObjectId();
 
@@ -39,7 +35,7 @@ const seedDatabase = async () => {
     const superAdminUser = await User.create({
       name: "Super Admin",
       email: "superadmin@example.com",
-      password: hashedPassword,
+      password: "Admin@123", // Will be hashed by the model's pre-save hook
       role: "SUPER_ADMIN",
       companyId: tempCompanyId, // Temporary, will be updated
       // managerId is not required for SUPER_ADMIN (conditional required)
@@ -63,15 +59,11 @@ const seedDatabase = async () => {
       companyId: company._id,
     });
 
-    // Create a manager
-    const managerPassword = await bcrypt.hash(
-      "Manager@123",
-      config.bcryptRounds,
-    );
+    // Create a manager - Let the model hash the password
     const manager = await Manager.create({
       name: "John Manager",
       email: "manager@techcorp.com",
-      password: managerPassword,
+      password: "Manager@123", // Will be hashed by the model's pre-save hook
       companyId: company._id,
       role: "MANAGER",
       createdBy: superAdminUser._id,
@@ -79,12 +71,11 @@ const seedDatabase = async () => {
 
     console.log("Manager created with ID:", manager._id);
 
-    // Create a regular user
-    const userPassword = await bcrypt.hash("User@123", config.bcryptRounds);
+    // Create a regular user - Let the model hash the password
     const user = await User.create({
       name: "Jane User",
       email: "user@techcorp.com",
-      password: userPassword,
+      password: "User@123", // Will be hashed by the model's pre-save hook
       companyId: company._id,
       managerId: manager._id,
       role: "USER",
@@ -93,15 +84,11 @@ const seedDatabase = async () => {
 
     console.log("User created with ID:", user._id);
 
-    // Create a company admin user
-    const companyAdminPassword = await bcrypt.hash(
-      "CompanyAdmin@123",
-      config.bcryptRounds,
-    );
+    // Create a company admin user - Let the model hash the password
     const companyAdmin = await User.create({
       name: "Company Admin",
       email: "companyadmin@techcorp.com",
-      password: companyAdminPassword,
+      password: "CompanyAdmin@123", // Will be hashed by the model's pre-save hook
       companyId: company._id,
       managerId: null, // Company admin doesn't need a manager
       role: "COMPANY_ADMIN",
