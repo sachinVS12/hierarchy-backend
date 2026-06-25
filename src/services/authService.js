@@ -107,6 +107,8 @@ class AuthService {
   async login(email, password, userType = "user") {
     let user;
 
+    // For super admin and regular users, use User model
+    // For managers, use Manager model
     if (userType === "manager") {
       user = await managerRepository.findByEmail(email, true);
     } else {
