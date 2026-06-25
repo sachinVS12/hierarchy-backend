@@ -1,5 +1,6 @@
 const managerService = require("../services/managerService");
 const ResponseHandler = require("../utils/responseHandler");
+const AppError = require("../utils/appError");
 const validate = require("../middleware/validationMiddleware");
 const {
   createManagerValidation,
@@ -36,9 +37,12 @@ class ManagerController {
         sort: { [sortBy]: sortOrder === "desc" ? -1 : 1 },
       };
 
+      const filters = { search };
+      if (companyId) filters.companyId = companyId;
+
       const result = await managerService.getAllManagers(
         req.user,
-        { search, companyId },
+        filters,
         options,
       );
       ResponseHandler.paginated(
