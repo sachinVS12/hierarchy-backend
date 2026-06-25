@@ -26,24 +26,30 @@ const userSchema = new mongoose.Schema(
     companyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",
-      required: true,
+      required: [true, "Company ID is required"],
       index: true,
     },
     managerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Manager",
-      required: true,
+      required: function () {
+        // Manager is required for USER role, but not for SUPER_ADMIN
+        return this.role !== "SUPER_ADMIN";
+      },
       index: true,
     },
     role: {
       type: String,
       default: "USER",
-      enum: ["USER"],
+      enum: ["SUPER_ADMIN", "COMPANY_ADMIN", "MANAGER", "USER"],
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: function () {
+        // createdBy is not required for SUPER_ADMIN (system created)
+        return this.role !== "SUPER_ADMIN";
+      },
     },
     updatedBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -82,5 +88,6 @@ userSchema.pre(/^find/, function () {
 userSchema.index({ email: 1, isDeleted: 1 });
 userSchema.index({ companyId: 1, managerId: 1 });
 userSchema.index({ managerId: 1, isDeleted: 1 });
+userSchema.index({ role: 1 });
 
 module.exports = mongoose.model("User", userSchema);
