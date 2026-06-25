@@ -54,12 +54,20 @@ const managerSchema = new mongoose.Schema(
   },
 );
 
-// Hash password before saving
+// Hash password before saving - FIX: Properly handle async/await
 managerSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+  // Only hash the password if it's modified
+  if (!this.isModified("password")) {
+    return next();
+  }
 
-  this.password = await bcrypt.hash(this.password, config.bcryptRounds);
-  next();
+  try {
+    const salt = await bcrypt.genSalt(config.bcryptRounds);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 // Compare password method
