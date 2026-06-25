@@ -17,10 +17,19 @@ const seedDatabase = async () => {
     await Manager.deleteMany({});
     await User.deleteMany({});
     await Tag.deleteMany({});
+    await Role.deleteMany({});
     console.log("Cleared existing data");
 
     // Seed roles
     await Role.seedRoles();
+
+    // Create a temporary company first
+    const company = await Company.create({
+      name: "TechCorp",
+      description: "Leading technology company",
+      status: true,
+      createdBy: null, // Will be updated
+    });
 
     // Create SUPER_ADMIN user
     const hashedPassword = await bcrypt.hash("Admin@123", config.bcryptRounds);
@@ -30,26 +39,17 @@ const seedDatabase = async () => {
       email: "superadmin@example.com",
       password: hashedPassword,
       role: "SUPER_ADMIN",
-      companyId: new mongoose.Types.ObjectId(), // Placeholder, will be updated
-      managerId: new mongoose.Types.ObjectId(), // Placeholder, will be updated
+      companyId: company._id,
+      managerId: null,
       createdBy: null,
     });
 
-    console.log("Super Admin created");
-
-    // Create a company
-    const company = await Company.create({
-      name: "TechCorp",
-      description: "Leading technology company",
-      status: true,
+    // Update company with createdBy
+    await Company.findByIdAndUpdate(company._id, {
       createdBy: superAdminUser._id,
     });
 
-    // Update SUPER_ADMIN with company ID
-    await User.findByIdAndUpdate(superAdminUser._id, {
-      companyId: company._id,
-      managerId: null,
-    });
+    console.log("Super Admin created");
 
     // Create a manager
     const managerPassword = await bcrypt.hash(
@@ -92,16 +92,21 @@ const seedDatabase = async () => {
     console.log("Tag created");
 
     console.log("\n=== Seeding Complete ===");
+    console.log("=====================================");
     console.log("Super Admin Email: superadmin@example.com");
     console.log("Super Admin Password: Admin@123");
-    console.log("\nManager Email: manager@techcorp.com");
+    console.log("=====================================");
+    console.log("Manager Email: manager@techcorp.com");
     console.log("Manager Password: Manager@123");
-    console.log("\nUser Email: user@techcorp.com");
+    console.log("=====================================");
+    console.log("User Email: user@techcorp.com");
     console.log("User Password: User@123");
-    console.log("\nCompany ID:", company._id);
-    console.log("Manager ID:", manager._id);
-    console.log("User ID:", user._id);
-    console.log("Tag ID:", tag._id);
+    console.log("=====================================");
+    console.log("Company ID:", company._id.toString());
+    console.log("Manager ID:", manager._id.toString());
+    console.log("User ID:", user._id.toString());
+    console.log("Tag ID:", tag._id.toString());
+    console.log("=====================================");
 
     process.exit(0);
   } catch (error) {
