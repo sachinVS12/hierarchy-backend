@@ -27,6 +27,7 @@ const updateTagValidation = [
     .withMessage(
       "Topic can only contain letters, numbers, spaces, and hyphens",
     ),
+  body("userId").optional().isMongoId().withMessage("Invalid user ID format"),
 ];
 
 const tagIdValidation = [
