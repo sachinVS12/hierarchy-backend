@@ -115,8 +115,8 @@ app.get("/", (req, res) => {
   });
 });
 
-// 404 handler
-app.use("*", (req, res) => {
+// 404 handler - Fixed to use (req, res) instead of app.use('*')
+app.use((req, res) => {
   res.status(404).json({
     success: false,
     message: `Cannot find ${req.originalUrl} on this server`,
