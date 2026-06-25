@@ -16,11 +16,11 @@ const seedDatabase = async () => {
     });
     console.log("Connected to MongoDB for seeding");
 
-    // Clear existing data
-    await Company.deleteMany({});
-    await Manager.deleteMany({});
-    await User.deleteMany({});
+    // Clear existing data (in correct order to avoid foreign key issues)
     await Tag.deleteMany({});
+    await User.deleteMany({});
+    await Manager.deleteMany({});
+    await Company.deleteMany({});
     await Role.deleteMany({});
     console.log("Cleared existing data");
 
@@ -29,26 +29,26 @@ const seedDatabase = async () => {
 
     console.log("Roles seeded successfully");
 
-    // Create SUPER_ADMIN user first (with a placeholder companyId)
+    // Create SUPER_ADMIN user (system user)
     const hashedPassword = await bcrypt.hash("Admin@123", config.bcryptRounds);
 
-    // Create a temporary ObjectId for the company placeholder
+    // Create a placeholder company ID for super admin
     const tempCompanyId = new mongoose.Types.ObjectId();
-    const tempManagerId = new mongoose.Types.ObjectId();
 
+    // Create SUPER_ADMIN user with minimal required fields
     const superAdminUser = await User.create({
       name: "Super Admin",
       email: "superadmin@example.com",
       password: hashedPassword,
       role: "SUPER_ADMIN",
       companyId: tempCompanyId, // Temporary, will be updated
-      managerId: null,
-      createdBy: null, // Super admin created by system
+      // managerId is not required for SUPER_ADMIN (conditional required)
+      // createdBy is not required for SUPER_ADMIN (conditional required)
     });
 
-    console.log("Super Admin created");
+    console.log("Super Admin created with ID:", superAdminUser._id);
 
-    // Now create the company with the super admin as createdBy
+    // Create the company with the super admin as createdBy
     const company = await Company.create({
       name: "TechCorp",
       description: "Leading technology company",
@@ -56,7 +56,7 @@ const seedDatabase = async () => {
       createdBy: superAdminUser._id,
     });
 
-    console.log("Company created");
+    console.log("Company created with ID:", company._id);
 
     // Update SUPER_ADMIN with the actual company ID
     await User.findByIdAndUpdate(superAdminUser._id, {
@@ -77,9 +77,9 @@ const seedDatabase = async () => {
       createdBy: superAdminUser._id,
     });
 
-    console.log("Manager created");
+    console.log("Manager created with ID:", manager._id);
 
-    // Create a user
+    // Create a regular user
     const userPassword = await bcrypt.hash("User@123", config.bcryptRounds);
     const user = await User.create({
       name: "Jane User",
@@ -91,7 +91,24 @@ const seedDatabase = async () => {
       createdBy: superAdminUser._id,
     });
 
-    console.log("User created");
+    console.log("User created with ID:", user._id);
+
+    // Create a company admin user
+    const companyAdminPassword = await bcrypt.hash(
+      "CompanyAdmin@123",
+      config.bcryptRounds,
+    );
+    const companyAdmin = await User.create({
+      name: "Company Admin",
+      email: "companyadmin@techcorp.com",
+      password: companyAdminPassword,
+      companyId: company._id,
+      managerId: null, // Company admin doesn't need a manager
+      role: "COMPANY_ADMIN",
+      createdBy: superAdminUser._id,
+    });
+
+    console.log("Company Admin created with ID:", companyAdmin._id);
 
     // Create a tag
     const tag = await Tag.create({
@@ -103,20 +120,30 @@ const seedDatabase = async () => {
       createdBy: user._id,
     });
 
-    console.log("Tag created");
+    console.log("Tag created with ID:", tag._id);
 
     console.log("\n=== Seeding Complete ===");
     console.log("=====================================");
-    console.log("Super Admin Email: superadmin@example.com");
-    console.log("Super Admin Password: Admin@123");
+    console.log("SUPER ADMIN CREDENTIALS:");
+    console.log("Email: superadmin@example.com");
+    console.log("Password: Admin@123");
     console.log("=====================================");
-    console.log("Manager Email: manager@techcorp.com");
-    console.log("Manager Password: Manager@123");
+    console.log("COMPANY ADMIN CREDENTIALS:");
+    console.log("Email: companyadmin@techcorp.com");
+    console.log("Password: CompanyAdmin@123");
     console.log("=====================================");
-    console.log("User Email: user@techcorp.com");
-    console.log("User Password: User@123");
+    console.log("MANAGER CREDENTIALS:");
+    console.log("Email: manager@techcorp.com");
+    console.log("Password: Manager@123");
     console.log("=====================================");
+    console.log("USER CREDENTIALS:");
+    console.log("Email: user@techcorp.com");
+    console.log("Password: User@123");
+    console.log("=====================================");
+    console.log("IDs:");
     console.log("Company ID:", company._id.toString());
+    console.log("Super Admin ID:", superAdminUser._id.toString());
+    console.log("Company Admin ID:", companyAdmin._id.toString());
     console.log("Manager ID:", manager._id.toString());
     console.log("User ID:", user._id.toString());
     console.log("Tag ID:", tag._id.toString());
