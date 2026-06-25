@@ -9,7 +9,11 @@ const Tag = require("../models/Tag");
 
 const seedDatabase = async () => {
   try {
-    await mongoose.connect(config.mongoUri);
+    // Connect with updated options
+    await mongoose.connect(config.mongoUri, {
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
     console.log("Connected to MongoDB for seeding");
 
     // Clear existing data
@@ -108,9 +112,11 @@ const seedDatabase = async () => {
     console.log("Tag ID:", tag._id.toString());
     console.log("=====================================");
 
+    await mongoose.disconnect();
     process.exit(0);
   } catch (error) {
     console.error("Seeding error:", error);
+    await mongoose.disconnect();
     process.exit(1);
   }
 };
