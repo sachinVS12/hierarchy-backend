@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Manager",
       required: function () {
-        // Manager is required for USER role, but not for SUPER_ADMIN
+        // Manager is required for USER role, but not for SUPER_ADMIN or COMPANY_ADMIN
         return this.role !== "SUPER_ADMIN" && this.role !== "COMPANY_ADMIN";
       },
       index: true,
@@ -66,20 +66,15 @@ const userSchema = new mongoose.Schema(
   },
 );
 
-// Hash password before saving - FIX: Properly handle async/await
-userSchema.pre("save", async function (next) {
+// Hash password before saving - FIX: Use async without next
+userSchema.pre("save", async function () {
   // Only hash the password if it's modified
   if (!this.isModified("password")) {
-    return next();
+    return;
   }
 
-  try {
-    const salt = await bcrypt.genSalt(config.bcryptRounds);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error);
-  }
+  const salt = await bcrypt.genSalt(parseInt(config.bcryptRounds));
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
 // Compare password method
