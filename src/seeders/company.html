@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Company</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .container {
+        background: #fff;
+        padding: 25px;
+        width: 400px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      }
+
+      h2 {
+        text-align: center;
+        color: #007bff;
+      }
+
+      label {
+        display: block;
+        margin-top: 12px;
+        font-weight: bold;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      button {
+        width: 100%;
+        margin-top: 20px;
+        padding: 12px;
+        background: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      button:hover {
+        background: #0056b3;
+      }
+
+      #message {
+        text-align: center;
+        color: green;
+        margin-top: 15px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h2>Create Company</h2>
+
+      <form id="companyForm">
+        <label>Company Name</label>
+        <input type="text" id="companyName" required />
+
+        <label>Owner Name</label>
+        <input type="text" id="ownerName" required />
+
+        <label>Email</label>
+        <input type="email" id="email" required />
+
+        <label>Phone Number</label>
+        <input type="tel" id="phone" required />
+
+        <label>Company Type</label>
+        <select id="companyType" required>
+          <option value="">Select</option>
+          <option>Private Limited</option>
+          <option>Public Limited</option>
+          <option>LLP</option>
+          <option>Partnership</option>
+          <option>Sole Proprietorship</option>
+        </select>
+
+        <label>Address</label>
+        <textarea id="address" rows="3" required></textarea>
+
+        <button type="submit">Create Company</button>
+      </form>
+
+      <div id="message"></div>
+    </div>
+
+    <script>
+      document
+        .getElementById("companyForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          document.getElementById("message").innerHTML =
+            "✅ Company created successfully!";
+
+          this.reset();
+        });
+    </script>
+  </body>
+</html>
