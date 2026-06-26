@@ -13,7 +13,7 @@ const seedDatabase = async () => {
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
     });
-    console.log("Connected to MongoDB for seeding");
+    console.log("✅ Connected to MongoDB for seeding");
 
     // Clear existing data (in correct order to avoid foreign key issues)
     await Tag.deleteMany({});
@@ -21,81 +21,71 @@ const seedDatabase = async () => {
     await Manager.deleteMany({});
     await Company.deleteMany({});
     await Role.deleteMany({});
-    console.log("Cleared existing data");
+    console.log("✅ Cleared existing data");
 
     // Seed roles
     await Role.seedRoles();
-    console.log("Roles seeded successfully");
+    console.log("✅ Roles seeded successfully");
 
-    // Create SUPER_ADMIN user (system user) - Let the model hash the password
-    // Create a placeholder company ID for super admin
+    // Create a temporary company ID for super admin
     const tempCompanyId = new mongoose.Types.ObjectId();
 
-    // Create SUPER_ADMIN user with minimal required fields
+    // Create SUPER_ADMIN user
     const superAdminUser = await User.create({
       name: "Super Admin",
       email: "superadmin@example.com",
-      password: "Admin@123", // Will be hashed by the model's pre-save hook
+      password: "Admin@123",
       role: "SUPER_ADMIN",
-      companyId: tempCompanyId, // Temporary, will be updated
-      // managerId is not required for SUPER_ADMIN (conditional required)
-      // createdBy is not required for SUPER_ADMIN (conditional required)
+      companyId: tempCompanyId,
     });
+    console.log("✅ Super Admin created");
 
-    console.log("Super Admin created with ID:", superAdminUser._id);
-
-    // Create the company with the super admin as createdBy
+    // Create the company
     const company = await Company.create({
       name: "TechCorp",
       description: "Leading technology company",
       status: true,
       createdBy: superAdminUser._id,
     });
-
-    console.log("Company created with ID:", company._id);
+    console.log("✅ Company created");
 
     // Update SUPER_ADMIN with the actual company ID
     await User.findByIdAndUpdate(superAdminUser._id, {
       companyId: company._id,
     });
 
-    // Create a manager - Let the model hash the password
+    // Create a manager
     const manager = await Manager.create({
       name: "John Manager",
       email: "manager@techcorp.com",
-      password: "Manager@123", // Will be hashed by the model's pre-save hook
+      password: "Manager@123",
       companyId: company._id,
-      role: "MANAGER",
       createdBy: superAdminUser._id,
     });
+    console.log("✅ Manager created");
 
-    console.log("Manager created with ID:", manager._id);
-
-    // Create a regular user - Let the model hash the password
+    // Create a regular user
     const user = await User.create({
       name: "Jane User",
       email: "user@techcorp.com",
-      password: "User@123", // Will be hashed by the model's pre-save hook
+      password: "User@123",
       companyId: company._id,
       managerId: manager._id,
       role: "USER",
       createdBy: superAdminUser._id,
     });
+    console.log("✅ User created");
 
-    console.log("User created with ID:", user._id);
-
-    // Create a company admin user - Let the model hash the password
+    // Create a company admin user
     const companyAdmin = await User.create({
       name: "Company Admin",
       email: "companyadmin@techcorp.com",
-      password: "CompanyAdmin@123", // Will be hashed by the model's pre-save hook
+      password: "CompanyAdmin@123",
       companyId: company._id,
-      managerId: null, // Company admin doesn't need a manager
       role: "COMPANY_ADMIN",
       createdBy: superAdminUser._id,
     });
-
-    console.log("Company Admin created with ID:", companyAdmin._id);
+    console.log("✅ Company Admin created");
 
     // Create a tag
     const tag = await Tag.create({
@@ -106,41 +96,45 @@ const seedDatabase = async () => {
       userId: user._id,
       createdBy: user._id,
     });
+    console.log("✅ Tag created");
 
-    console.log("Tag created with ID:", tag._id);
-
-    console.log("\n=== Seeding Complete ===");
-    console.log("=====================================");
-    console.log("SUPER ADMIN CREDENTIALS:");
-    console.log("Email: superadmin@example.com");
-    console.log("Password: Admin@123");
-    console.log("=====================================");
-    console.log("COMPANY ADMIN CREDENTIALS:");
-    console.log("Email: companyadmin@techcorp.com");
-    console.log("Password: CompanyAdmin@123");
-    console.log("=====================================");
-    console.log("MANAGER CREDENTIALS:");
-    console.log("Email: manager@techcorp.com");
-    console.log("Password: Manager@123");
-    console.log("=====================================");
-    console.log("USER CREDENTIALS:");
-    console.log("Email: user@techcorp.com");
-    console.log("Password: User@123");
-    console.log("=====================================");
-    console.log("IDs:");
-    console.log("Company ID:", company._id.toString());
-    console.log("Super Admin ID:", superAdminUser._id.toString());
-    console.log("Company Admin ID:", companyAdmin._id.toString());
-    console.log("Manager ID:", manager._id.toString());
-    console.log("User ID:", user._id.toString());
-    console.log("Tag ID:", tag._id.toString());
-    console.log("=====================================");
+    console.log("\n" + "=".repeat(50));
+    console.log("✅ SEEDING COMPLETE");
+    console.log("=".repeat(50));
+    console.log("\n📋 CREDENTIALS:");
+    console.log("─".repeat(50));
+    console.log("🔴 SUPER ADMIN:");
+    console.log("   Email: superadmin@example.com");
+    console.log("   Password: Admin@123");
+    console.log("─".repeat(50));
+    console.log("🔵 COMPANY ADMIN:");
+    console.log("   Email: companyadmin@techcorp.com");
+    console.log("   Password: CompanyAdmin@123");
+    console.log("─".repeat(50));
+    console.log("🟢 MANAGER:");
+    console.log("   Email: manager@techcorp.com");
+    console.log("   Password: Manager@123");
+    console.log("─".repeat(50));
+    console.log("🟡 USER:");
+    console.log("   Email: user@techcorp.com");
+    console.log("   Password: User@123");
+    console.log("─".repeat(50));
+    console.log("\n📊 IDs:");
+    console.log("─".repeat(50));
+    console.log(`   Company ID: ${company._id}`);
+    console.log(`   Super Admin ID: ${superAdminUser._id}`);
+    console.log(`   Company Admin ID: ${companyAdmin._id}`);
+    console.log(`   Manager ID: ${manager._id}`);
+    console.log(`   User ID: ${user._id}`);
+    console.log(`   Tag ID: ${tag._id}`);
+    console.log("=".repeat(50) + "\n");
 
     await mongoose.disconnect();
-    console.log("Database disconnected");
+    console.log("✅ Database disconnected");
     process.exit(0);
   } catch (error) {
-    console.error("Seeding error:", error);
+    console.error("❌ Seeding error:", error.message);
+    console.error("Stack:", error.stack);
     await mongoose.disconnect();
     process.exit(1);
   }
