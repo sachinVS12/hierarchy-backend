@@ -3,29 +3,36 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Create Company</title>
+    <title>Manager Creation Form</title>
 
     <style>
-      body {
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
         font-family: Arial, sans-serif;
-        background: #f4f4f4;
+      }
+
+      body {
+        background: #f2f4f7;
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
+        min-height: 100vh;
       }
 
       .container {
+        width: 420px;
         background: #fff;
         padding: 25px;
-        width: 400px;
         border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
       }
 
       h2 {
         text-align: center;
         color: #007bff;
+        margin-bottom: 20px;
       }
 
       label {
@@ -42,12 +49,13 @@
         margin-top: 5px;
         border: 1px solid #ccc;
         border-radius: 5px;
+        font-size: 15px;
       }
 
       button {
         width: 100%;
-        margin-top: 20px;
         padding: 12px;
+        margin-top: 20px;
         background: #007bff;
         color: #fff;
         border: none;
@@ -64,20 +72,21 @@
         text-align: center;
         color: green;
         margin-top: 15px;
+        font-weight: bold;
       }
     </style>
   </head>
 
   <body>
     <div class="container">
-      <h2>Create Company</h2>
+      <h2>Manager Creation Form</h2>
 
-      <form id="companyForm">
-        <label>Company Name</label>
-        <input type="text" id="companyName" required />
+      <form id="managerForm">
+        <label>Manager ID</label>
+        <input type="text" id="managerId" required />
 
-        <label>Owner Name</label>
-        <input type="text" id="ownerName" required />
+        <label>Full Name</label>
+        <input type="text" id="fullName" required />
 
         <label>Email</label>
         <input type="email" id="email" required />
@@ -85,20 +94,30 @@
         <label>Phone Number</label>
         <input type="tel" id="phone" required />
 
-        <label>Company Type</label>
-        <select id="companyType" required>
-          <option value="">Select</option>
-          <option>Private Limited</option>
-          <option>Public Limited</option>
-          <option>LLP</option>
-          <option>Partnership</option>
-          <option>Sole Proprietorship</option>
+        <label>Department</label>
+        <select id="department" required>
+          <option value="">Select Department</option>
+          <option>Human Resources</option>
+          <option>Finance</option>
+          <option>Sales</option>
+          <option>Marketing</option>
+          <option>Information Technology</option>
+          <option>Operations</option>
         </select>
+
+        <label>Designation</label>
+        <input type="text" id="designation" placeholder="Manager" required />
+
+        <label>Joining Date</label>
+        <input type="date" id="joiningDate" required />
 
         <label>Address</label>
         <textarea id="address" rows="3" required></textarea>
 
-        <button type="submit">Create Company</button>
+        <label>Password</label>
+        <input type="password" id="password" required />
+
+        <button type="submit">Create Manager</button>
       </form>
 
       <div id="message"></div>
@@ -106,15 +125,15 @@
 
     <script>
       document
-        .getElementById("companyForm")
+        .getElementById("managerForm")
         .addEventListener("submit", function (e) {
           e.preventDefault();
 
           document.getElementById("message").innerHTML =
-            "✅ Company created successfully!";
+            "✅ Manager account created successfully!";
 
           this.reset();
         });
     </script>
-  </body> 
+  </body>
 </html>
