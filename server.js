@@ -50,7 +50,7 @@ const startServer = async () => {
 
 startServer();
 
-//    server.js simulation code
+//    Server.js Simulation Code
 
 // const mqtt = require("mqtt");
 
